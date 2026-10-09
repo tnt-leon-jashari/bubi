@@ -1,6 +1,7 @@
 // Tray-menu settings, persisted to ~/.bubi/config.json. Env vars win over the file.
 import fs from 'node:fs'
 import { z } from 'zod'
+import { HIT_SOUND_IDS } from '../shared/ipc.js'
 import { CONFIG_FILE, HOME_DIR } from './paths.js'
 
 export const INTERRUPT_KEYS = { ctrlC: 'ctrl-c', escape: 'escape' } as const
@@ -9,6 +10,7 @@ export const configSchema = z.object({
   autoTrigger: z.boolean().catch(true),
   slowThresholdMs: z.number().int().positive().catch(20000),
   voice: z.boolean().catch(true),
+  hitSound: z.enum(HIT_SOUND_IDS).catch('squeaky'),
   interruptKey: z.enum([INTERRUPT_KEYS.ctrlC, INTERRUPT_KEYS.escape]).catch(INTERRUPT_KEYS.ctrlC),
   lastMode: z.enum(['whip', 'pat']).catch('whip'),
 })

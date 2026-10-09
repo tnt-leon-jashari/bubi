@@ -101,7 +101,10 @@ Any other agent can write the same file from its own start and finish hooks.
 - **Auto-whip slow agents**, with **Slow after** set to 10s, 20s (default),
   30s, 1 min or 2 min
 - **Interrupt with**: `Ctrl-C` or `Esc`
-- **Agent yelps**: a cartoon dog yelp on every crack, escalating into yips on rapid hits. Drop your own
+- **Agent yelps** and **Hit sound**: the reaction on every crack. Pick one of 8
+  presets (squeaky toy, arcade combo, cartoon bonk, big punch, puppy, cat,
+  robot, laser). Each escalates as you hit faster. **Open sound lab…**
+  (or `bubi lab`) lets you audition them all on hit pads Drop your own
   `.wav/.mp3/.m4a/.aiff` clips in `~/.bubi/whimpers/` to replace the voice
 - **Open at login** (installed app only)
 

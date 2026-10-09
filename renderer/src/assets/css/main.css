@@ -1,13 +1,5 @@
 @import 'tailwindcss';
-
-@theme {
-  --font-sans: ui-rounded, 'SF Pro Rounded', -apple-system, BlinkMacSystemFont, sans-serif;
-  --color-leather-950: #24150a;
-  --color-leather-800: #4a2c16;
-  --color-leather-600: #7a4a26;
-  --color-spark: #ffd166;
-  --color-heart: #ff5d8f;
-}
+@import './theme.css';
 
 html,
 body,

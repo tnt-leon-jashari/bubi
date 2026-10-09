@@ -1,10 +1,10 @@
 import type { MenuItemConstructorOptions, Rectangle } from 'electron'
-import type { BannerKind, Mode, SpawnPayload } from '../shared/ipc.js'
+import type { BannerKind, HitSoundId, Mode, SpawnPayload } from '../shared/ipc.js'
 import type { Config } from './config.js'
 import fs from 'node:fs'
 import path from 'node:path'
 import { app, BrowserWindow, globalShortcut, ipcMain, Menu, nativeImage, screen, systemPreferences, Tray } from 'electron'
-import { IPC, MODES } from '../shared/ipc.js'
+import { HIT_SOUND_IDS, IPC, MODES } from '../shared/ipc.js'
 import { INTERRUPT_KEYS, loadConfig, saveConfig } from './config.js'
 import { hooksInstalled, installHooks, uninstallHooks } from './hooks.js'
 import { frontmostBundleId, sendText } from './keystroke.js'
@@ -39,6 +39,7 @@ let pendingSpawn: SpawnPayload | null = null
 let cursorTimer: NodeJS.Timeout | null = null
 let targetBundleId: string | null = null
 let lastSendAt = 0
+let labWindow: BrowserWindow | null = null
 
 let wasBusy = false
 let doneUntil = 0
@@ -192,7 +193,7 @@ ipcMain.on(IPC.crack, () => {
   banner(crackPhrase.text, 'whip')
   if (config.voice) {
     const streak = hitStreak()
-    if (!playCustomClip(streak)) overlay?.webContents.send(IPC.yelp, streak)
+    if (!playCustomClip(streak)) overlay?.webContents.send(IPC.yelp, { sound: config.hitSound, streak })
   }
 })
 
@@ -209,6 +210,45 @@ ipcMain.on(IPC.pat, () => {
   const phrase = randomKindPhrase()
   banner(phrase, 'pat')
   void typeIntoAgent(phrase, false)
+})
+
+// ── Sound lab ────────────────────────────────────────────────────────────────
+
+const HIT_SOUND_LABELS: Record<HitSoundId, string> = {
+  squeaky: '🧸 Squeaky toy',
+  arcade: '🕹️ Arcade combo',
+  bonk: '🔨 Cartoon bonk',
+  punch: '🥊 Big punch',
+  puppy: '🐶 Puppy yip',
+  cat: '🐱 Angry cat',
+  robot: '🤖 Robot glitch',
+  laser: '⚡ Laser zap',
+}
+
+function openSoundLab(): void {
+  if (labWindow) {
+    labWindow.show()
+    labWindow.focus()
+    return
+  }
+  labWindow = new BrowserWindow({
+    width: 980,
+    height: 860,
+    title: 'Bubi sound lab',
+    backgroundColor: '#0c0a09',
+    webPreferences: { preload: path.join(__dirname, 'preload.js') },
+  })
+  const devUrl = process.env.BUBI_DEV_URL
+  if (devUrl) void labWindow.loadURL(`${devUrl}/lab.html`)
+  else void labWindow.loadFile(path.join(ROOT, 'dist-renderer', 'lab.html'))
+  app.focus({ steal: true })
+  labWindow.on('closed', () => (labWindow = null))
+}
+
+ipcMain.handle(IPC.getHitSound, () => config.hitSound)
+ipcMain.on(IPC.setHitSound, (_e, id: unknown) => {
+  const sound = HIT_SOUND_IDS.find(s => s === id)
+  if (sound) setConfig({ hitSound: sound })
 })
 
 // ── Agent status (Claude Code hooks → ~/.bubi/status.json) ─────────────────
@@ -294,6 +334,20 @@ function buildTrayMenu(): Menu {
       ],
     },
     { label: 'Agent yelps', type: 'checkbox', checked: config.voice, click: item => setConfig({ voice: item.checked }) },
+    {
+      label: 'Hit sound',
+      enabled: config.voice,
+      submenu: [
+        ...HIT_SOUND_IDS.map(id => ({
+          label: HIT_SOUND_LABELS[id],
+          type: 'radio' as const,
+          checked: config.hitSound === id,
+          click: () => setConfig({ hitSound: id }),
+        })),
+        { type: 'separator' as const },
+        { label: 'Open sound lab…', click: openSoundLab },
+      ],
+    },
     { type: 'separator' },
     {
       label: installed ? 'Remove Claude Code hooks' : 'Install Claude Code hooks',
@@ -323,6 +377,11 @@ function loadTrayIcon(): Electron.NativeImage {
 
 // ── Lifecycle ────────────────────────────────────────────────────────────────
 
+function handleArgv(argv: string[]): void {
+  if (argv.includes('lab')) openSoundLab()
+  else toggleOverlay(modeFromArgv(argv) ?? config.lastMode)
+}
+
 function modeFromArgv(argv: string[]): Mode | null {
   if (argv.includes(MODES.pat)) return MODES.pat
   if (argv.includes(MODES.whip)) return MODES.whip
@@ -333,7 +392,7 @@ if (!app.requestSingleInstanceLock()) {
   app.quit()
 }
 else {
-  app.on('second-instance', (_e, argv) => toggleOverlay(modeFromArgv(argv) ?? config.lastMode))
+  app.on('second-instance', (_e, argv) => handleArgv(argv))
 
   void app.whenReady().then(() => {
     app.dock?.hide() // menu-bar only
@@ -361,7 +420,8 @@ else {
     }
 
     const launchMode = modeFromArgv(process.argv)
-    if (launchMode) setTimeout(() => showOverlay(launchMode), 400)
+    if (process.argv.includes('lab')) openSoundLab()
+    else if (launchMode) setTimeout(() => showOverlay(launchMode), 400)
 
     setInterval(pollStatus, 1000)
   })
