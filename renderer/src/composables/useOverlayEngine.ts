@@ -11,7 +11,8 @@ import { drawFx, drawHand, drawWhip } from '../render/draw'
 import { createHand, patHand, stepHand, waveGoodbye } from '../render/hand'
 import { useOverlayStore } from '../stores/overlay'
 
-const STRIKE_WINDOW_MS = 300
+// After a crack, any click while its phrase is on screen sends it.
+const STRIKE_WINDOW_MS = 1800
 const CRACK_COOLDOWN_MS = 450
 const WHOOSH_COOLDOWN_MS = 350
 const ENTRANCE_MS = 550
@@ -117,9 +118,9 @@ export function useOverlayEngine(canvas: Ref<HTMLCanvasElement | null>): Overlay
     stepRope(r, phase === 'active' ? target(now) : null, bounds())
     if (phase !== 'active') return
     const { crack, arm } = thresholds(r.scale)
-    if (r.tipSpeed > arm) armedUntil = now + STRIKE_WINDOW_MS
     if (r.tipSpeed > crack && now - lastCrackAt > CRACK_COOLDOWN_MS) {
       lastCrackAt = now
+      armedUntil = now + STRIKE_WINDOW_MS
       const tip = tipPoint(r)
       const n = r.count - 1
       const power = r.tipSpeed / crack
@@ -219,9 +220,9 @@ export function useOverlayEngine(canvas: Ref<HTMLCanvasElement | null>): Overlay
       cursor.x = p.x
       cursor.y = p.y
     })
-    bridge.onBanner(({ text, kind }) => {
+    bridge.onBanner(({ text, kind, note }) => {
       const at = kind === 'warn' ? { x: width.value / 2, y: height.value * 0.3 } : lastEffectAt
-      store.showBanner(text, kind, at)
+      store.showBanner(text, kind, at, note)
     })
   })
 

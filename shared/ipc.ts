@@ -17,6 +17,8 @@ export type BannerKind = 'whip' | 'pat' | 'warn'
 export interface BannerPayload {
   text: string
   kind: BannerKind
+  /** Small caption under the phrase, e.g. "click to send". */
+  note?: string
 }
 
 /** The bridge exposed on `window.bubi` by the preload script. */

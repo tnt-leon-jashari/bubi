@@ -22,6 +22,8 @@ const DONE_FLASH_MS = 4000
 // strikes are rate limited no matter how fast the whip is swung.
 const SEND_COOLDOWN_MS = 2000
 const CURSOR_HZ = 120
+// Slightly longer than the renderer's strike window, to cover IPC latency.
+const STRIKE_PHRASE_TTL_MS = 2500
 const ROOT = path.join(__dirname, '..', '..')
 const SELFTEST_DIR = process.env.BUBI_SELFTEST
 let selftestStart = 0
@@ -149,8 +151,8 @@ function rememberMode(mode: Mode): void {
 
 // ── Typing into the agent ───────────────────────────────────────────────────
 
-function banner(text: string, kind: BannerKind): void {
-  overlay?.webContents.send(IPC.banner, { text, kind })
+function banner(text: string, kind: BannerKind, note?: string): void {
+  overlay?.webContents.send(IPC.banner, { text, kind, note })
 }
 
 function ensureAccessibility(): boolean {
@@ -182,21 +184,27 @@ ipcMain.on(IPC.hidden, () => {
 ipcMain.on(IPC.modeChanged, (_e, mode: unknown) => rememberMode(mode === MODES.pat ? MODES.pat : MODES.whip))
 
 // A crack is free: sparks, a yelp and a banner, but nothing is typed.
+// The phrase it shows is what a following strike sends.
+let crackPhrase: { text: string, at: number } | null = null
+
 ipcMain.on(IPC.crack, () => {
-  banner(randomWhipPhrase(), 'whip')
+  crackPhrase = { text: randomWhipPhrase(), at: Date.now() }
+  banner(crackPhrase.text, 'whip', 'click to send ↵')
   if (config.voice) yelp()
 })
 
-// A strike (click inside the crack window) is what actually interrupts.
+// A strike (click while the crack phrase is up) is what actually interrupts.
 ipcMain.on(IPC.strike, () => {
-  const phrase = randomWhipPhrase()
-  banner(phrase, 'whip')
+  const fresh = crackPhrase && Date.now() - crackPhrase.at < STRIKE_PHRASE_TTL_MS
+  const phrase = fresh && crackPhrase ? crackPhrase.text : randomWhipPhrase()
+  crackPhrase = null
+  banner(phrase, 'whip', 'sent ✓')
   void typeIntoAgent(phrase, true)
 })
 
 ipcMain.on(IPC.pat, () => {
   const phrase = randomKindPhrase()
-  banner(phrase, 'pat')
+  banner(phrase, 'pat', 'sent ✓')
   void typeIntoAgent(phrase, false)
 })
 

@@ -15,8 +15,9 @@ busy right in the menu bar. If a prompt runs slow, the whip slides in on its own
   mass and bend limits. A loop travels down the lash and the light tip goes
   supersonic, so it cracks like an actual whip.
 - **Crack vs. strike.** A fast flick cracks (sparks, shockwave, snap sound,
-  the agent yelps) and never types anything. A click inside the 300ms
-  window after a crack is a **strike**: it sends the interrupt plus a phrase.
+  the agent yelps) and shows a phrase, but never types anything. Clicking
+  while that phrase is on screen is a **strike**: it sends the interrupt and
+  types that exact phrase.
 - **Interrupt key of your choice.** `Ctrl-C` (works for any CLI) or `Esc`
   (gentler for Claude Code, since it never quits the session). Typed strikes
   are rate limited to one every 2s so a double `Ctrl-C` can't exit your agent.
@@ -72,7 +73,7 @@ enable that one instead.
 | Summon the whip | Press **and hold** the tray icon (it drops when you let go), or `⌥⇧W` |
 | Summon pat mode | `⌥⇧P`, or the tray menu |
 | Crack | Flick the mouse fast |
-| Strike (types into the agent) | Click right after a crack |
+| Strike (types into the agent) | After a crack, click while its phrase is on screen (~1.8s) — that exact phrase is sent |
 | Pat | Click in pat mode |
 | Switch whip ↔ pat | Scroll wheel or middle-click |
 | Put it away | Right-click (pat mode waves goodbye) |

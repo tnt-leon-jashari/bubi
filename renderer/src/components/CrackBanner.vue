@@ -16,6 +16,9 @@
         :class="toneClass"
       >
         {{ banner.text }}
+        <span v-if="banner.note" class="mt-0.5 block text-xs font-semibold tracking-wide uppercase opacity-70">
+          {{ banner.note }}
+        </span>
       </p>
     </div>
   </Transition>

@@ -21,6 +21,6 @@ const { hintVisible, isPat } = storeToRefs(useOverlayStore())
 const hints = computed(() =>
   isPat.value
     ? ['Click to pat', 'Scroll to switch', 'Right-click to wave bye']
-    : ['Flick fast to crack', 'Click on the crack to interrupt', 'Scroll to switch', 'Right-click to drop'],
+    : ['Flick fast to crack', 'Click while the phrase shows to send it', 'Scroll to switch', 'Right-click to drop'],
 )
 </script>
