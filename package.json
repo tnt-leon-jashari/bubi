@@ -1,0 +1,86 @@
+{
+  "name": "bubi",
+  "version": "0.1.0",
+  "description": "A menu-bar whip for your terminal. Crack it to interrupt a slow agent, or pat it on the shoulder.",
+  "license": "MIT",
+  "author": "Leon Jashari",
+  "private": true,
+  "main": "dist-electron/electron/main.js",
+  "bin": {
+    "bubi": "bin/bubi.js"
+  },
+  "os": [
+    "darwin"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "tsc -p tsconfig.electron.json && concurrently -k -n vite,tsc,app \"vite\" \"tsc -p tsconfig.electron.json -w --preserveWatchOutput\" \"BUBI_DEV_URL=http://localhost:5174 electron .\"",
+    "build": "tsc -p tsconfig.electron.json && vite build",
+    "start": "npm run build && electron .",
+    "typecheck": "tsc -p tsconfig.electron.json --noEmit && vue-tsc -p tsconfig.renderer.json && tsc -p tsconfig.test.json",
+    "test": "vitest run",
+    "icons": "node scripts/make-icons.mjs",
+    "dist": "npm run build && electron-builder --mac --publish never"
+  },
+  "build": {
+    "appId": "dev.bubi.app",
+    "productName": "Bubi",
+    "files": [
+      "dist-electron/**/*",
+      "dist-renderer/**/*",
+      "icon/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "mac": {
+      "identity": null,
+      "icon": "icon/AppIcon.icns",
+      "category": "public.app-category.developer-tools",
+      "extendInfo": {
+        "LSUIElement": true
+      },
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ]
+    }
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^26.6.5",
+    "@vitejs/plugin-vue": "^6.0.9",
+    "concurrently": "^10.0.6",
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3",
+    "vue-tsc": "^3.3.12"
+  },
+  "allowScripts": {
+    "electron@44.7.0": true
+  },
+  "dependencies": {
+    "@vueuse/core": "^15.0.0",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.43",
+    "zod": "^4.6.5"
+  }
+}
