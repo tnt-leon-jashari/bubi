@@ -28,7 +28,7 @@ busy right in the menu bar. If a prompt runs slow, the whip slides in on its own
 - **Auto-whip.** After a configurable slow threshold, the whip slides in from
   the left without you touching anything.
 - **Menu-bar only.** No Dock icon, no Cmd+Tab entry, no windows.
-- **No assets.** Sounds are synthesised with WebAudio, yelps use macOS `say`
+- **No assets.** Sounds are synthesised with WebAudio, yelps are a synthesised cartoon dog
   (or your own clips), and icons are generated from code.
 
 ## Install
@@ -101,7 +101,7 @@ Any other agent can write the same file from its own start and finish hooks.
 - **Auto-whip slow agents**, with **Slow after** set to 10s, 20s (default),
   30s, 1 min or 2 min
 - **Interrupt with**: `Ctrl-C` or `Esc`
-- **Agent yelps**: escalating "ow!"s on rapid hits. Drop your own
+- **Agent yelps**: a cartoon dog yelp on every crack, escalating into yips on rapid hits. Drop your own
   `.wav/.mp3/.m4a/.aiff` clips in `~/.bubi/whimpers/` to replace the voice
 - **Open at login** (installed app only)
 
@@ -128,7 +128,7 @@ electron/            Main process (TypeScript, compiled with tsc)
   keystroke.ts         AppleScript typing + refocusing the target app
   hooks.ts             Claude Code hook install/uninstall (merge-safe)
   config.ts, status.ts Zod-validated ~/.bubi files
-  whimpers.ts          Yelps via `say` / afplay
+  whimpers.ts          Hit streaks + custom yelp clips (afplay)
   selftest.ts          Dev-only scripted flick + frame capture
 shared/ipc.ts        IPC channel names and payload types
 renderer/src/        Overlay UI (Vue + Pinia + Tailwind)

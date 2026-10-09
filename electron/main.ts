@@ -12,7 +12,7 @@ import { STATUS_FILE } from './paths.js'
 import { randomKindPhrase, randomWhipPhrase } from './phrases.js'
 import { captureFrames, selftestCursor } from './selftest.js'
 import { formatElapsed, parseStatus } from './status.js'
-import { yelp } from './whimpers.js'
+import { hitStreak, playCustomClip } from './whimpers.js'
 
 const WHIP_SHORTCUT = 'Alt+Shift+W'
 const PAT_SHORTCUT = 'Alt+Shift+P'
@@ -151,8 +151,8 @@ function rememberMode(mode: Mode): void {
 
 // ── Typing into the agent ───────────────────────────────────────────────────
 
-function banner(text: string, kind: BannerKind, note?: string): void {
-  overlay?.webContents.send(IPC.banner, { text, kind, note })
+function banner(text: string, kind: BannerKind): void {
+  overlay?.webContents.send(IPC.banner, { text, kind })
 }
 
 function ensureAccessibility(): boolean {
@@ -189,8 +189,11 @@ let crackPhrase: { text: string, at: number } | null = null
 
 ipcMain.on(IPC.crack, () => {
   crackPhrase = { text: randomWhipPhrase(), at: Date.now() }
-  banner(crackPhrase.text, 'whip', 'click to send ↵')
-  if (config.voice) yelp()
+  banner(crackPhrase.text, 'whip')
+  if (config.voice) {
+    const streak = hitStreak()
+    if (!playCustomClip(streak)) overlay?.webContents.send(IPC.yelp, streak)
+  }
 })
 
 // A strike (click while the crack phrase is up) is what actually interrupts.
@@ -198,13 +201,13 @@ ipcMain.on(IPC.strike, () => {
   const fresh = crackPhrase && Date.now() - crackPhrase.at < STRIKE_PHRASE_TTL_MS
   const phrase = fresh && crackPhrase ? crackPhrase.text : randomWhipPhrase()
   crackPhrase = null
-  banner(phrase, 'whip', 'sent ✓')
+  banner(phrase, 'whip')
   void typeIntoAgent(phrase, true)
 })
 
 ipcMain.on(IPC.pat, () => {
   const phrase = randomKindPhrase()
-  banner(phrase, 'pat', 'sent ✓')
+  banner(phrase, 'pat')
   void typeIntoAgent(phrase, false)
 })
 

@@ -71,3 +71,54 @@ export function playWhoosh(power: number): void {
   src.start()
   src.stop(ctx.currentTime + 0.25)
 }
+
+/**
+ * Cartoon dog yelp ("kaing!"): a bright pitch flip through two vocal formants.
+ * Rapid hits (`streak`) get higher, louder and turn into a run of yips.
+ */
+export function playYelp(streak: number): void {
+  const { ctx } = audio()
+  const yips = streak >= 3 ? 3 : streak >= 1 ? 2 : 1
+  const peak = Math.min(0.55, 0.28 + streak * 0.05)
+
+  for (let k = 0; k < yips; k++) {
+    const t = ctx.currentTime + 0.05 + k * 0.17
+    const base = (650 + streak * 70 + Math.random() * 90) * (1 - k * 0.06)
+    const length = 0.15 + Math.random() * 0.04
+
+    const osc = ctx.createOscillator()
+    osc.type = 'sawtooth'
+    osc.frequency.setValueAtTime(base * 0.7, t)
+    osc.frequency.exponentialRampToValueAtTime(base * 1.7, t + 0.035)
+    osc.frequency.exponentialRampToValueAtTime(base * 0.5, t + length)
+
+    // A fast wobble makes it sound like a voice rather than a synth.
+    const wobble = ctx.createOscillator()
+    wobble.frequency.value = 26 + Math.random() * 8
+    const wobbleDepth = ctx.createGain()
+    wobbleDepth.gain.value = base * 0.05
+    wobble.connect(wobbleDepth).connect(osc.frequency)
+
+    const gain = ctx.createGain()
+    gain.gain.setValueAtTime(0.0001, t)
+    gain.gain.exponentialRampToValueAtTime(peak, t + 0.012)
+    gain.gain.setValueAtTime(peak, t + length * 0.45)
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + length)
+    gain.connect(ctx.destination)
+
+    for (const [frequency, q, level] of [[1150, 3.5, 1], [2700, 6, 0.55]] as const) {
+      const formant = ctx.createBiquadFilter()
+      formant.type = 'bandpass'
+      formant.frequency.value = frequency
+      formant.Q.value = q
+      const mix = ctx.createGain()
+      mix.gain.value = level * 2.2
+      osc.connect(formant).connect(mix).connect(gain)
+    }
+
+    for (const node of [osc, wobble]) {
+      node.start(t)
+      node.stop(t + length + 0.02)
+    }
+  }
+}

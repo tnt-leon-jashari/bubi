@@ -7,7 +7,6 @@ export interface Banner {
   text: string
   kind: BannerKind
   at: Point
-  note?: string
 }
 
 const BANNER_MS = 1800
@@ -46,8 +45,8 @@ export const useOverlayStore = defineStore('overlay', () => {
     mode.value = next
   }
 
-  function showBanner(text: string, kind: BannerKind, at: Point, note?: string): void {
-    banner.value = { id: nextId++, text, kind, at: { ...at }, note }
+  function showBanner(text: string, kind: BannerKind, at: Point): void {
+    banner.value = { id: nextId++, text, kind, at: { ...at } }
     if (bannerTimer) clearTimeout(bannerTimer)
     bannerTimer = setTimeout(() => (banner.value = null), kind === 'warn' ? WARN_BANNER_MS : BANNER_MS)
   }

@@ -17,8 +17,6 @@ export type BannerKind = 'whip' | 'pat' | 'warn'
 export interface BannerPayload {
   text: string
   kind: BannerKind
-  /** Small caption under the phrase, e.g. "click to send". */
-  note?: string
 }
 
 /** The bridge exposed on `window.bubi` by the preload script. */
@@ -28,6 +26,8 @@ export interface BubiBridge {
   onCursor: (fn: (point: Point) => void) => void
   onBanner: (fn: (payload: BannerPayload) => void) => void
   onSetMode: (fn: (mode: Mode) => void) => void
+  /** Synthesised hit reaction; `streak` grows with rapid hits. */
+  onYelp: (fn: (streak: number) => void) => void
   crack: () => void
   strike: () => void
   pat: () => void
@@ -41,6 +41,7 @@ export const IPC = {
   cursor: 'cursor',
   banner: 'banner',
   setMode: 'set-mode',
+  yelp: 'yelp',
   crack: 'crack',
   strike: 'strike',
   pat: 'pat',

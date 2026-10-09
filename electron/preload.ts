@@ -12,6 +12,7 @@ const bridge: BubiBridge = {
   onCursor: listen<Point>('cursor'),
   onBanner: listen<BannerPayload>('banner'),
   onSetMode: listen<Mode>('set-mode'),
+  onYelp: listen<number>('yelp'),
   crack: () => ipcRenderer.send('crack'),
   strike: () => ipcRenderer.send('strike'),
   pat: () => ipcRenderer.send('pat'),
