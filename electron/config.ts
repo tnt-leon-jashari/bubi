@@ -8,7 +8,6 @@ export const INTERRUPT_KEYS = { ctrlC: 'ctrl-c', escape: 'escape' } as const
 export const configSchema = z.object({
   autoTrigger: z.boolean().catch(true),
   slowThresholdMs: z.number().int().positive().catch(20000),
-  voice: z.boolean().catch(true),
   interruptKey: z.enum([INTERRUPT_KEYS.ctrlC, INTERRUPT_KEYS.escape]).catch(INTERRUPT_KEYS.ctrlC),
   lastMode: z.enum(['whip', 'pat']).catch('whip'),
 })

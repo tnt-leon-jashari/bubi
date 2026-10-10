@@ -14,8 +14,7 @@ busy right in the menu bar. If a prompt runs slow, the whip slides in on its own
 - **Real whip physics.** A 36-point verlet rope with a rigid handle, tapered
   mass and bend limits. A loop travels down the lash and the light tip goes
   supersonic, so it cracks like an actual whip.
-- **Crack vs. strike.** A fast flick cracks (sparks, shockwave, snap sound,
-  the agent yelps) and shows a phrase, but never types anything. Clicking
+- **Crack vs. strike.** A fast flick cracks (sparks, shockwave, snap sound) and shows a phrase, but never types anything. Clicking
   while that phrase is on screen is a **strike**: it sends the interrupt and
   types that exact phrase.
 - **Interrupt key of your choice.** `Ctrl-C` (works for any CLI) or `Esc`
@@ -28,8 +27,8 @@ busy right in the menu bar. If a prompt runs slow, the whip slides in on its own
 - **Auto-whip.** After a configurable slow threshold, the whip slides in from
   the left without you touching anything.
 - **Menu-bar only.** No Dock icon, no Cmd+Tab entry, no windows.
-- **No assets.** Sounds are synthesised with WebAudio, yelps use macOS `say`
-  (or your own clips), and icons are generated from code.
+- **No assets.** Sounds are synthesised with WebAudio and icons are
+  generated from code.
 
 ## Install
 
@@ -101,8 +100,6 @@ Any other agent can write the same file from its own start and finish hooks.
 - **Auto-whip slow agents**, with **Slow after** set to 10s, 20s (default),
   30s, 1 min or 2 min
 - **Interrupt with**: `Ctrl-C` or `Esc`
-- **Agent yelps**: escalating "ow!"s on rapid hits. Drop your own
-  `.wav/.mp3/.m4a/.aiff` clips in `~/.bubi/whimpers/` to replace the voice
 - **Open at login** (installed app only)
 
 Settings are saved to `~/.bubi/config.json`. These env vars override them:
@@ -128,7 +125,6 @@ electron/            Main process (TypeScript, compiled with tsc)
   keystroke.ts         AppleScript typing + refocusing the target app
   hooks.ts             Claude Code hook install/uninstall (merge-safe)
   config.ts, status.ts Zod-validated ~/.bubi files
-  whimpers.ts          Yelps via `say` / afplay
   selftest.ts          Dev-only scripted flick + frame capture
 shared/ipc.ts        IPC channel names and payload types
 renderer/src/        Overlay UI (Vue + Pinia + Tailwind)

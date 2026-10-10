@@ -12,7 +12,6 @@ import { STATUS_FILE } from './paths.js'
 import { randomKindPhrase, randomWhipPhrase } from './phrases.js'
 import { captureFrames, selftestCursor } from './selftest.js'
 import { formatElapsed, parseStatus } from './status.js'
-import { yelp } from './whimpers.js'
 
 const WHIP_SHORTCUT = 'Alt+Shift+W'
 const PAT_SHORTCUT = 'Alt+Shift+P'
@@ -183,14 +182,13 @@ ipcMain.on(IPC.hidden, () => {
 })
 ipcMain.on(IPC.modeChanged, (_e, mode: unknown) => rememberMode(mode === MODES.pat ? MODES.pat : MODES.whip))
 
-// A crack is free: sparks, a yelp and a banner, but nothing is typed.
+// A crack is free: sparks and a banner, but nothing is typed.
 // The phrase it shows is what a following strike sends.
 let crackPhrase: { text: string, at: number } | null = null
 
 ipcMain.on(IPC.crack, () => {
   crackPhrase = { text: randomWhipPhrase(), at: Date.now() }
   banner(crackPhrase.text, 'whip')
-  if (config.voice) yelp()
 })
 
 // A strike (click while the crack phrase is up) is what actually interrupts.
@@ -290,7 +288,6 @@ function buildTrayMenu(): Menu {
         { label: 'Esc (gentler for Claude Code)', type: 'radio', checked: config.interruptKey === INTERRUPT_KEYS.escape, click: () => setConfig({ interruptKey: INTERRUPT_KEYS.escape }) },
       ],
     },
-    { label: 'Agent yelps', type: 'checkbox', checked: config.voice, click: item => setConfig({ voice: item.checked }) },
     { type: 'separator' },
     {
       label: installed ? 'Remove Claude Code hooks' : 'Install Claude Code hooks',
