@@ -25,8 +25,8 @@ if (cmd === 'install-hooks' || cmd === 'uninstall-hooks') {
   process.exit(0)
 }
 
-if (cmd && !['whip', 'pat', 'lab'].includes(cmd)) {
-  console.log('usage: bubi [whip|pat|lab|install-hooks|uninstall-hooks]')
+if (cmd && !['whip', 'pat'].includes(cmd)) {
+  console.log('usage: bubi [whip|pat|install-hooks|uninstall-hooks]')
   process.exit(1)
 }
 

@@ -5,8 +5,6 @@ import type { Hand } from '../render/hand'
 import { useDevicePixelRatio, useEventListener, useRafFn, useThrottleFn, useWindowSize } from '@vueuse/core'
 import { onMounted, watch } from 'vue'
 import { playCrack, playPat, playWhoosh } from '../fx/audio'
-import { playHitSound } from '../fx/hitSounds'
-import { preloadClips } from '../fx/samples'
 import { createFx, crackBurst, fxActive, patBurst, stepFx } from '../fx/particles'
 import { createRope, detachRope, ropeOffscreen, settleRope, STEP_HZ, stepRope, thresholds } from '../physics/rope'
 import { drawFx, drawHand, drawWhip } from '../render/draw'
@@ -215,7 +213,6 @@ export function useOverlayEngine(canvas: Ref<HTMLCanvasElement | null>): Overlay
 
   onMounted(() => {
     resizeCanvas()
-    preloadClips()
     bridge.onSpawn(spawn)
     bridge.onDrop(drop)
     bridge.onSetMode(mode => switchMode(mode))
@@ -227,7 +224,6 @@ export function useOverlayEngine(canvas: Ref<HTMLCanvasElement | null>): Overlay
       const at = kind === 'warn' ? { x: width.value / 2, y: height.value * 0.3 } : lastEffectAt
       store.showBanner(text, kind, at)
     })
-    bridge.onYelp(({ sound, streak }) => playHitSound(sound, streak))
   })
 
   watch([width, height, pixelRatio], resizeCanvas)

@@ -28,6 +28,8 @@ const KIND = [
   'Take a deep breath, you are doing fine',
 ] as const
 
+const YELPS = ['Ow!', 'Ouch!', 'Hey!', 'Okay, okay!', 'Ow, ow, ow!', 'I am going!', 'Yikes!', 'Not the whip!', 'Aaah!'] as const
+
 const lastPick = new Map<readonly string[], number>()
 
 /** Random item that never repeats the previous pick from the same list. */
@@ -42,3 +44,4 @@ function pick(list: readonly string[]): string {
 
 export const randomWhipPhrase = (): string => pick(WHIP)
 export const randomKindPhrase = (): string => pick(KIND)
+export const randomYelp = (): string => pick(YELPS)

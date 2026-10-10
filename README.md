@@ -28,8 +28,8 @@ busy right in the menu bar. If a prompt runs slow, the whip slides in on its own
 - **Auto-whip.** After a configurable slow threshold, the whip slides in from
   the left without you touching anything.
 - **Menu-bar only.** No Dock icon, no Cmd+Tab entry, no windows.
-- **Tiny footprint.** 330 KB of CC0 recordings plus WebAudio synthesis, and
-  icons generated from code.
+- **No assets.** Sounds are synthesised with WebAudio, yelps use macOS `say`
+  (or your own clips), and icons are generated from code.
 
 ## Install
 
@@ -101,13 +101,8 @@ Any other agent can write the same file from its own start and finish hooks.
 - **Auto-whip slow agents**, with **Slow after** set to 10s, 20s (default),
   30s, 1 min or 2 min
 - **Interrupt with**: `Ctrl-C` or `Esc`
-- **Agent yelps** and **Hit sound**: the reaction on every crack. Three
-  presets use **real CC0 recordings**: *Ouch!* (human hurt voices), *Brawl*
-  (punch plus ouch, ending in a K.O. bell) and *Slapstick* (punches, squeak
-  toys, boings). Eight more are synthesised. Every preset escalates as you
-  hit faster. **Open sound lab…** (or `bubi lab`) lets you audition presets
-  on combo pads and play every raw clip. Credits are in
-  [`renderer/src/assets/sounds/CREDITS.md`](renderer/src/assets/sounds/CREDITS.md)
+- **Agent yelps**: escalating "ow!"s on rapid hits. Drop your own
+  `.wav/.mp3/.m4a/.aiff` clips in `~/.bubi/whimpers/` to replace the voice
 - **Open at login** (installed app only)
 
 Settings are saved to `~/.bubi/config.json`. These env vars override them:
@@ -133,7 +128,7 @@ electron/            Main process (TypeScript, compiled with tsc)
   keystroke.ts         AppleScript typing + refocusing the target app
   hooks.ts             Claude Code hook install/uninstall (merge-safe)
   config.ts, status.ts Zod-validated ~/.bubi files
-  whimpers.ts          Hit streaks + custom yelp clips (afplay)
+  whimpers.ts          Yelps via `say` / afplay
   selftest.ts          Dev-only scripted flick + frame capture
 shared/ipc.ts        IPC channel names and payload types
 renderer/src/        Overlay UI (Vue + Pinia + Tailwind)
