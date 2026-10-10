@@ -28,8 +28,8 @@ busy right in the menu bar. If a prompt runs slow, the whip slides in on its own
 - **Auto-whip.** After a configurable slow threshold, the whip slides in from
   the left without you touching anything.
 - **Menu-bar only.** No Dock icon, no Cmd+Tab entry, no windows.
-- **No assets.** Sounds are synthesised with WebAudio, yelps are a synthesised cartoon dog
-  (or your own clips), and icons are generated from code.
+- **Tiny footprint.** 330 KB of CC0 recordings plus WebAudio synthesis, and
+  icons generated from code.
 
 ## Install
 
