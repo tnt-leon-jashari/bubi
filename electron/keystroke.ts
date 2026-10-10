@@ -39,10 +39,18 @@ const INTERRUPTS: Record<Config['interruptKey'], string> = {
   'escape': 'key code 53',
 }
 
+const SPACE = '  key code 49'
+
 export function buildTypeScript(text: string, interrupt: Config['interruptKey'] | null): string {
   const lines = ['tell application "System Events"']
   if (interrupt) lines.push(`  ${INTERRUPTS[interrupt]}`, '  delay 0.3')
-  lines.push(`  keystroke "${escapeAppleScript(text)}"`, '  delay 0.2', '  key code 36', 'end tell')
+  // Spaces inside a `keystroke` string can get swallowed by some apps, so
+  // each word is typed on its own with a real Space key press in between.
+  text.split(' ').filter(Boolean).forEach((word, i) => {
+    if (i > 0) lines.push(SPACE)
+    lines.push(`  keystroke "${escapeAppleScript(word)}"`)
+  })
+  lines.push('  delay 0.2', '  key code 36', 'end tell')
   return lines.join('\n')
 }
 

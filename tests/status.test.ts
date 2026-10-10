@@ -25,6 +25,14 @@ describe('applescript', () => {
     expect(escapeAppleScript('say "hi" \\ bye')).toBe('say \\"hi\\" \\\\ bye')
   })
 
+  it('types words separately with real space key presses', () => {
+    const script = buildTypeScript('You had one job', null)
+    expect(script).toContain('keystroke "You"')
+    expect(script).toContain('keystroke "job"')
+    expect(script.match(/key code 49/g)).toHaveLength(3)
+    expect(script).not.toContain('keystroke "You had')
+  })
+
   it('only interrupts when asked', () => {
     expect(buildTypeScript('go', null)).not.toContain('key code 8')
     expect(buildTypeScript('go', 'ctrl-c')).toContain('key code 8 using {control down}')
