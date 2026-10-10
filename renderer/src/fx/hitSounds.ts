@@ -1,8 +1,10 @@
 // Hit reaction presets, all synthesised. Every recipe escalates with `level`
 // (0 = a single hit … MAX_LEVEL = a full-on combo) so rapid whipping feels
 // increasingly rewarding: higher, louder, more layers, plus milestone flourishes.
-import type { HitSoundId } from '../../../shared/ipc'
+import type { HitSoundId, SynthSoundId } from '../../../shared/ipc'
+import { REAL_SOUND_IDS, SYNTH_SOUND_IDS } from '../../../shared/ipc'
 import { audio } from './audio'
+import { SAMPLE_RECIPES } from './samples'
 
 export const MAX_LEVEL = 6
 
@@ -13,6 +15,9 @@ export interface HitSound {
 }
 
 export const HIT_SOUNDS: Record<HitSoundId, HitSound> = {
+  ouch: { label: 'Ouch!', description: 'Real human hurt voices: a grunt, then an "ow!", then full-on screaming.', emoji: '😫' },
+  brawl: { label: 'Brawl', description: 'Real punch plus an ouch. Slap → punch → heavy hit, ending in a K.O. bell.', emoji: '🥊' },
+  slapstick: { label: 'Slapstick', description: 'Real punches with squeak toys and boings, like an old cartoon.', emoji: '🤡' },
   squeaky: { label: 'Squeaky toy', description: 'Rubber chew-toy squeaks that multiply and climb.', emoji: '🧸' },
   arcade: { label: 'Arcade combo', description: 'Retro blips up a scale, with a fanfare on every combo milestone.', emoji: '🕹️' },
   bonk: { label: 'Cartoon bonk', description: 'Wood-block bonk, then a boing, then a slide whistle.', emoji: '🔨' },
@@ -120,7 +125,7 @@ const squeak = (out: AudioNode, t: number, base: number, length: number, peak: n
   vibrato(o, t, length, 38, base * 0.03)
 }
 
-const RECIPES: Record<HitSoundId, Recipe> = {
+const RECIPES: Record<SynthSoundId, Recipe> = {
   squeaky(out, t, level) {
     const count = 1 + Math.floor(level / 2)
     for (let i = 0; i < count; i++) {
@@ -244,11 +249,19 @@ let master: GainNode | null = null
 
 /** Plays a hit reaction; `level` is clamped to 0..MAX_LEVEL. */
 export function playHitSound(id: HitSoundId, level: number): void {
+  const clamped = Math.max(0, Math.min(MAX_LEVEL, Math.round(level)))
+  const real = REAL_SOUND_IDS.find(r => r === id)
+  if (real) {
+    SAMPLE_RECIPES[real](clamped)
+    return
+  }
+  const synth = SYNTH_SOUND_IDS.find(s => s === id)
+  if (!synth) return
   const c = ctx()
   if (!master) {
     master = c.createGain()
     master.gain.value = 0.9
     master.connect(c.destination)
   }
-  RECIPES[id](master, c.currentTime + 0.01, Math.max(0, Math.min(MAX_LEVEL, Math.round(level))))
+  RECIPES[synth](master, c.currentTime + 0.01, clamped)
 }

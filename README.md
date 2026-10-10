@@ -101,11 +101,13 @@ Any other agent can write the same file from its own start and finish hooks.
 - **Auto-whip slow agents**, with **Slow after** set to 10s, 20s (default),
   30s, 1 min or 2 min
 - **Interrupt with**: `Ctrl-C` or `Esc`
-- **Agent yelps** and **Hit sound**: the reaction on every crack. Pick one of 8
-  presets (squeaky toy, arcade combo, cartoon bonk, big punch, puppy, cat,
-  robot, laser). Each escalates as you hit faster. **Open sound lab…**
-  (or `bubi lab`) lets you audition them all on hit pads Drop your own
-  `.wav/.mp3/.m4a/.aiff` clips in `~/.bubi/whimpers/` to replace the voice
+- **Agent yelps** and **Hit sound**: the reaction on every crack. Three
+  presets use **real CC0 recordings**: *Ouch!* (human hurt voices), *Brawl*
+  (punch plus ouch, ending in a K.O. bell) and *Slapstick* (punches, squeak
+  toys, boings). Eight more are synthesised. Every preset escalates as you
+  hit faster. **Open sound lab…** (or `bubi lab`) lets you audition presets
+  on combo pads and play every raw clip. Credits are in
+  [`renderer/src/assets/sounds/CREDITS.md`](renderer/src/assets/sounds/CREDITS.md)
 - **Open at login** (installed app only)
 
 Settings are saved to `~/.bubi/config.json`. These env vars override them:

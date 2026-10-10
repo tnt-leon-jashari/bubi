@@ -10,7 +10,7 @@ export const configSchema = z.object({
   autoTrigger: z.boolean().catch(true),
   slowThresholdMs: z.number().int().positive().catch(20000),
   voice: z.boolean().catch(true),
-  hitSound: z.enum(HIT_SOUND_IDS).catch('squeaky'),
+  hitSound: z.enum(HIT_SOUND_IDS).catch('ouch'),
   interruptKey: z.enum([INTERRUPT_KEYS.ctrlC, INTERRUPT_KEYS.escape]).catch(INTERRUPT_KEYS.ctrlC),
   lastMode: z.enum(['whip', 'pat']).catch('whip'),
 })

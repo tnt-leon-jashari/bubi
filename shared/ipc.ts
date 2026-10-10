@@ -1,8 +1,12 @@
 export const MODES = { whip: 'whip', pat: 'pat' } as const
 export type Mode = (typeof MODES)[keyof typeof MODES]
 
-/** Hit reaction presets; the recipes live in renderer/src/fx/hitSounds.ts. */
-export const HIT_SOUND_IDS = ['squeaky', 'arcade', 'bonk', 'punch', 'puppy', 'cat', 'robot', 'laser'] as const
+/** Hit reaction presets: real recordings first, then synthesised ones (renderer/src/fx/). */
+export const REAL_SOUND_IDS = ['ouch', 'brawl', 'slapstick'] as const
+export const SYNTH_SOUND_IDS = ['squeaky', 'arcade', 'bonk', 'punch', 'puppy', 'cat', 'robot', 'laser'] as const
+export const HIT_SOUND_IDS = [...REAL_SOUND_IDS, ...SYNTH_SOUND_IDS] as const
+export type RealSoundId = (typeof REAL_SOUND_IDS)[number]
+export type SynthSoundId = (typeof SYNTH_SOUND_IDS)[number]
 export type HitSoundId = (typeof HIT_SOUND_IDS)[number]
 
 export interface YelpPayload {

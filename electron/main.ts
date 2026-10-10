@@ -215,6 +215,9 @@ ipcMain.on(IPC.pat, () => {
 // ── Sound lab ────────────────────────────────────────────────────────────────
 
 const HIT_SOUND_LABELS: Record<HitSoundId, string> = {
+  ouch: '😫 Ouch! (real voices)',
+  brawl: '🥊 Brawl (punch + ouch)',
+  slapstick: '🤡 Slapstick (punch, squeak, boing)',
   squeaky: '🧸 Squeaky toy',
   arcade: '🕹️ Arcade combo',
   bonk: '🔨 Cartoon bonk',
@@ -338,12 +341,15 @@ function buildTrayMenu(): Menu {
       label: 'Hit sound',
       enabled: config.voice,
       submenu: [
-        ...HIT_SOUND_IDS.map(id => ({
-          label: HIT_SOUND_LABELS[id],
-          type: 'radio' as const,
-          checked: config.hitSound === id,
-          click: () => setConfig({ hitSound: id }),
-        })),
+        ...HIT_SOUND_IDS.flatMap(id => [
+          ...(id === 'squeaky' ? [{ type: 'separator' as const }] : []),
+          {
+            label: HIT_SOUND_LABELS[id],
+            type: 'radio' as const,
+            checked: config.hitSound === id,
+            click: () => setConfig({ hitSound: id }),
+          },
+        ]),
         { type: 'separator' as const },
         { label: 'Open sound lab…', click: openSoundLab },
       ],

@@ -6,6 +6,7 @@ import { useDevicePixelRatio, useEventListener, useRafFn, useThrottleFn, useWind
 import { onMounted, watch } from 'vue'
 import { playCrack, playPat, playWhoosh } from '../fx/audio'
 import { playHitSound } from '../fx/hitSounds'
+import { preloadClips } from '../fx/samples'
 import { createFx, crackBurst, fxActive, patBurst, stepFx } from '../fx/particles'
 import { createRope, detachRope, ropeOffscreen, settleRope, STEP_HZ, stepRope, thresholds } from '../physics/rope'
 import { drawFx, drawHand, drawWhip } from '../render/draw'
@@ -214,6 +215,7 @@ export function useOverlayEngine(canvas: Ref<HTMLCanvasElement | null>): Overlay
 
   onMounted(() => {
     resizeCanvas()
+    preloadClips()
     bridge.onSpawn(spawn)
     bridge.onDrop(drop)
     bridge.onSetMode(mode => switchMode(mode))
