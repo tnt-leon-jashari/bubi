@@ -1,7 +1,10 @@
 // macOS keystroke automation via System Events (needs Accessibility access).
 // We remember which app was frontmost when the whip came out and re-activate it
-// before typing, so a click on the tray never sends keys into the void.
+// before sending, so a click on the tray never sends keys into the void.
+// Phrases are pasted rather than typed: synthetic per-key typing occasionally
+// drops characters (spaces especially), a paste always lands whole.
 import { execFile } from 'node:child_process'
+import { clipboard, ClipboardItem } from 'electron'
 import type { Config } from './config.js'
 
 function run(cmd: string, args: string[]): Promise<string> {
@@ -30,27 +33,16 @@ async function activate(bundleId: string | null): Promise<void> {
   await sleep(180)
 }
 
-export function escapeAppleScript(text: string): string {
-  return text.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-}
-
 const INTERRUPTS: Record<Config['interruptKey'], string> = {
   'ctrl-c': 'key code 8 using {control down}',
   'escape': 'key code 53',
 }
 
-const SPACE = '  key code 49'
-
-export function buildTypeScript(text: string, interrupt: Config['interruptKey'] | null): string {
+/** Optional interrupt, then paste whatever is on the clipboard and press Enter. */
+export function buildPasteScript(interrupt: Config['interruptKey'] | null): string {
   const lines = ['tell application "System Events"']
   if (interrupt) lines.push(`  ${INTERRUPTS[interrupt]}`, '  delay 0.3')
-  // Spaces inside a `keystroke` string can get swallowed by some apps, so
-  // each word is typed on its own with a real Space key press in between.
-  text.split(' ').filter(Boolean).forEach((word, i) => {
-    if (i > 0) lines.push(SPACE)
-    lines.push(`  keystroke "${escapeAppleScript(word)}"`)
-  })
-  lines.push('  delay 0.2', '  key code 36', 'end tell')
+  lines.push('  keystroke "v" using {command down}', '  delay 0.25', '  key code 36', 'end tell')
   return lines.join('\n')
 }
 
@@ -59,8 +51,48 @@ export interface SendOptions {
   targetBundleId: string | null
 }
 
-/** Types `text` + Enter into the target app, optionally preceded by an interrupt key. */
+/**
+ * Sends `text` + Enter to the target app, optionally preceded by an interrupt
+ * key. The user's clipboard is restored afterwards.
+ */
 export async function sendText(text: string, { interrupt, targetBundleId }: SendOptions): Promise<void> {
-  await activate(targetBundleId)
-  await run('osascript', ['-e', buildTypeScript(text, interrupt)])
+  const saved = await snapshotClipboard()
+  await clipboard.writeText(text)
+  try {
+    await activate(targetBundleId)
+    await run('osascript', ['-e', buildPasteScript(interrupt)])
+  }
+  finally {
+    // Give the target app a moment to read the paste before putting things back.
+    setTimeout(() => void restoreClipboard(saved), CLIPBOARD_RESTORE_MS)
+  }
+}
+
+const CLIPBOARD_RESTORE_MS = 600
+
+type ClipboardData = Record<string, Blob | string | Electron.ClipboardBookmark>
+
+/** Copies every type of every clipboard item out, since read() items can't be written back as-is. */
+async function snapshotClipboard(): Promise<ClipboardData[]> {
+  try {
+    const items = await clipboard.read()
+    return await Promise.all(items.map(async (item) => {
+      const data: ClipboardData = {}
+      for (const type of item.types) data[type] = await item.getType(type)
+      return data
+    }))
+  }
+  catch {
+    return []
+  }
+}
+
+async function restoreClipboard(saved: ClipboardData[]): Promise<void> {
+  try {
+    if (saved.length) await clipboard.write(saved.map(data => new ClipboardItem(data)))
+    else clipboard.clear()
+  }
+  catch (err) {
+    console.warn('bubi: could not restore clipboard:', (err as Error).message)
+  }
 }

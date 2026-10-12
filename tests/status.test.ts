@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { formatElapsed, parseStatus } from '../electron/status'
-import { buildTypeScript, escapeAppleScript } from '../electron/keystroke'
+import { buildPasteScript } from '../electron/keystroke'
 
 describe('status file', () => {
   it('parses busy and idle', () => {
@@ -21,21 +21,15 @@ describe('status file', () => {
 })
 
 describe('applescript', () => {
-  it('escapes quotes and backslashes', () => {
-    expect(escapeAppleScript('say "hi" \\ bye')).toBe('say \\"hi\\" \\\\ bye')
-  })
-
-  it('types words separately with real space key presses', () => {
-    const script = buildTypeScript('You had one job', null)
-    expect(script).toContain('keystroke "You"')
-    expect(script).toContain('keystroke "job"')
-    expect(script.match(/key code 49/g)).toHaveLength(3)
-    expect(script).not.toContain('keystroke "You had')
+  it('pastes then presses Enter', () => {
+    const script = buildPasteScript(null)
+    expect(script).toContain('keystroke "v" using {command down}')
+    expect(script.indexOf('command down')).toBeLessThan(script.indexOf('key code 36'))
   })
 
   it('only interrupts when asked', () => {
-    expect(buildTypeScript('go', null)).not.toContain('key code 8')
-    expect(buildTypeScript('go', 'ctrl-c')).toContain('key code 8 using {control down}')
-    expect(buildTypeScript('go', 'escape')).toContain('key code 53')
+    expect(buildPasteScript(null)).not.toContain('key code 8')
+    expect(buildPasteScript('ctrl-c')).toContain('key code 8 using {control down}')
+    expect(buildPasteScript('escape')).toContain('key code 53')
   })
 })
